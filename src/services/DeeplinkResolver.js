@@ -10,6 +10,7 @@ import {
 	openWebFlow
 } from './NavigationService'
 import { delay } from './UtilService'
+import { resolveDeeplinkFromSitePages } from './SitePageResolver'
 
 const resolveDeeplinkRoot = deeplink => {
 	console.log('resolveDeeplinkRoot')
@@ -226,6 +227,7 @@ export const resolveDeeplinkPath = async deeplink => {
 		resolveDeeplinkRoot,
 		resolveDeeplinkToProduct,
 		resolveDeeplinkFromRemoteConfig,
+		resolveDeeplinkFromSitePages,
 		resolveDeeplinkLandingPage,
 		resolveDeeplinkToProductCatalog,
 		openRedirectLinkBrowser

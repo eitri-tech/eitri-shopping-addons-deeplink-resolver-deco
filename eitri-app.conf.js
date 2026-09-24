@@ -10,7 +10,7 @@ module.exports = {
   id: "b0119535-e179-4459-aca0-4d49c4aa7661",
   "eitri-app-dependencies": {
     "eitri-shopping-vtex-shared": {
-      version: "1.1.4",
+      version: "1.18.3",
     },
   },
   type: "module",

@@ -3,7 +3,7 @@ name: Verificar e Publicar Versões
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:

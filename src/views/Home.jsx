@@ -135,8 +135,14 @@ export default function Home(props) {
 	}
 
 	return (
-		<Page>
-            <Text>...</Text>
+		<Page className="bg-base-100">
+			<View
+				width="100vw"
+				height="100vh"
+				className="flex flex-col items-center justify-center gap-4">
+				<Loading className="loading-spinner loading-lg text-primary" />
+				<Text className="text-sm text-base-content/60">Carregando...</Text>
+			</View>
 		</Page>
 	)
 }

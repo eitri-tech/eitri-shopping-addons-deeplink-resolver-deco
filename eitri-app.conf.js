@@ -5,8 +5,9 @@ module.exports = {
   "eitri-luminus": "2.22.6",
   "eitri-bifrost": "6.0.0",
   "eitri-commons": "2.2.1",
-  version: "1.0.0",
-  messageVersion: "feat: new deeplink mapping resolver",
+  version: "1.1.0",
+  messageVersion:
+    "feat: update version to 1.1.0 and enhance debug logging in NavigationService and SitePageResolver",
   id: "b0119535-e179-4459-aca0-4d49c4aa7661",
   "eitri-app-dependencies": {
     "eitri-shopping-vtex-shared": {

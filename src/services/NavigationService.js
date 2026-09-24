@@ -298,7 +298,7 @@ let appIsOpen = true
 // centralizando Eitri.navigation.open, para melhorar debug de codigo
 export const eitriNavigationOpen = params => {
 	if (appIsOpen) {
-		// console.log('eitriNavigationOpen', params)
+		console.log('[DEBUG-DEEPLINK] eitriNavigationOpen', JSON.stringify(params))
 		return Eitri.navigation.open(params)
 	} 
 }

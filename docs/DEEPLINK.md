@@ -34,15 +34,7 @@ links de loja → raiz → produto (/p) → remote config (deeplinkMap) → pág
 
 ### Deeplinks por esquema
 
-Links `app://…` passam pelo `UriDeeplinkSchemeResolver.js`. Um path que não é nenhuma ação documentada (ex.: `app://joias/colecao/bossa`, o path de uma página do site) consulta o mesmo índice antes do fallback de landing page do CMS:
-
-```
-genéricas (home/cart/account) → remote config → produto → collection → category → webview → search → landingpage → páginas do site → landing page CMS → fecha
-```
-
-Assim o marketing pode usar o path da página do site num link por esquema, que é o formato aceito pelas ferramentas de push, e o app abre a vitrine com o título e os facets da página.
-
-`collection` e `category` também aceitam dois parâmetros opcionais, para reproduzir a vitrine que um banner do CMS abre:
+Links `app://…` passam pelo `UriDeeplinkSchemeResolver.js`, que ainda não consulta o índice. `collection` e `category` aceitam dois parâmetros opcionais, para reproduzir a vitrine que um banner do CMS abre:
 
 - `title=<texto>`: título da tela. Sem ele a vitrine usa o título padrão.
 - `filter.<chave>=<valor>`: facet extra somado aos da ação (mesma convenção das URLs `https://`). Pode repetir.
@@ -160,6 +152,7 @@ Resultado na Monte Carlo: 1.201 de 1.203 paths de catálogo resolvidos (1.093 id
 
 ## Limitações conhecidas
 
+- **Deeplinks por esquema** (`app://…`) passam pelo `UriDeeplinkSchemeResolver.js`, que ainda não consulta o índice.
 - **Dependência do `.decofile` público:** se o site fechar o acesso a ele, instâncias que já têm o índice em memória continuam servindo a última versão, mas instâncias novas passam a responder 502 e o app cai no pipeline antigo. A alternativa definitiva é um loader no próprio site respondendo no mesmo contrato por path, e aí basta trocar a `pageResolverUrl`.
 - **Lógica extra de loaders customizados:** o app aplica só as `selectedFacets`. Regras além delas, como o filtro de desconto do `DiscountFilteredListingPage`, não são reproduzidas.
 - **Match do `deeplinkMap`:** ele casa por substring (`deeplink.indexOf(path)`) e a primeira entrada vence. Com `/app` antes de `/app-monte-carlo-joias`, a segunda nunca é alcançada. Isso vale para as exceções que ficarem na remote config.

@@ -3,7 +3,6 @@ import { openBrowser, openEitriApp, openProduct, openLandingPage, closeEitriApp 
 import Eitri from 'eitri-bifrost'
 import { resolveDeeplinkFromRemoteConfig, landingPageExistsInCms } from './DeeplinkResolver'
 import { delay } from './UtilService'
-import { resolveDeeplinkFromSitePages } from './SitePageResolver'
 
 // Parâmetros opcionais de vitrine, aceitos em collection e category:
 // - title=<texto>: título da tela (sem ele a vitrine abre com o título padrão)
@@ -184,14 +183,6 @@ const resolveGeneric = async (deeplink, params) => {
 	return false
 }
 
-// Path do site enviado por esquema (ex: scheme://joias/colecao/bossa): consulta o mesmo
-// índice de páginas dos links http (pageResolverUrl). Sem pageResolverUrl, ou com 404,
-// devolve false e o pipeline segue como antes.
-const resolveSitePage = (deeplink, params) => {
-	if (!deeplink) return false
-	return resolveDeeplinkFromSitePages(`/${deeplink}${params ? `?${params}` : ''}`)
-}
-
 // Landing page enviada sem o prefixo "landingpage/" (ex: scheme://especial/cliente-a):
 // último recurso antes de fechar o app — valida a existência no CMS antes de abrir,
 // mesmo padrão das URLs http; sem match no CMS, segue o pipeline (closeEitriApp)
@@ -221,7 +212,6 @@ export const resolveUriDeeplinkScheme = async deeplink => {
 		resolveWebView,
 		resolveSearch,
 		resolveLandingPage,
-		resolveSitePage,
 		resolveCmsLandingPage
 	]
 

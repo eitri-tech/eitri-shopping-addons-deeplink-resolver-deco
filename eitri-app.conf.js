@@ -7,7 +7,7 @@ module.exports = {
   "eitri-commons": "2.2.1",
   version: "1.2.0",
   messageVersion:
-    "feat: deeplinks por esquema aceitam title e filter.* em collection/category e consultam o pageResolverUrl",
+    "feat: deeplinks por esquema aceitam title e filter.* em collection/category",
   id: "b0119535-e179-4459-aca0-4d49c4aa7661",
   "eitri-app-dependencies": {
     "eitri-shopping-vtex-shared": {

@@ -3,6 +3,21 @@ import { openBrowser, openEitriApp, openProduct, openLandingPage, closeEitriApp 
 import Eitri from 'eitri-bifrost'
 import { resolveDeeplinkFromRemoteConfig, landingPageExistsInCms } from './DeeplinkResolver'
 import { delay } from './UtilService'
+import { resolveDeeplinkFromSitePages } from './SitePageResolver'
+
+// Parâmetros opcionais de vitrine, aceitos em collection e category:
+// - title=<texto>: título da tela (sem ele a vitrine abre com o título padrão)
+// - filter.<chave>=<valor>: facet extra somado aos da ação, mesma convenção das URLs http
+// Permite reproduzir por deeplink a vitrine que um banner do CMS abre (título + facets).
+const extractCatalogExtras = params => {
+	const searchParams = new URLSearchParams(params)
+	const facets = []
+	for (const [key, value] of searchParams.entries()) {
+		if (key.startsWith('filter.') && value) facets.push({ key: key.replace('filter.', ''), value })
+	}
+	const title = searchParams.get('title') || ''
+	return { facets, ...(title ? { title } : {}) }
+}
 
 const resolveDeeplinkToProduct = async deeplink => {
 	try {
@@ -35,13 +50,15 @@ const resolveCollection = async (deeplink, params) => {
 	try {
 		if (deeplink?.startsWith('collection')) {
 			const paramsObj = Object.fromEntries(new URLSearchParams(params))
+			const { facets: extraFacets, title } = extractCatalogExtras(params)
 			const payload = {
-				facets: [{ key: 'productClusterIds', value: paramsObj?.filter || paramsObj?.filters }],
+				facets: [{ key: 'productClusterIds', value: paramsObj?.filter || paramsObj?.filters }, ...extraFacets],
 				sort: paramsObj?.O || paramsObj?.order,
 			}
 			openEitriApp('home', {
 				route: 'ProductCatalog',
 				...payload,
+				...(title ? { title } : {}),
 				params: payload
 			})
 			return true
@@ -69,14 +86,16 @@ const resolveCategory = async (deeplink, params) => {
 	if (!facets) return false
 
 	const paramsObj = Object.fromEntries(new URLSearchParams(params))
+	const { facets: extraFacets, title } = extractCatalogExtras(params)
 	const payload = {
-		facets,
+		facets: [...facets, ...extraFacets],
 		sort: paramsObj?.O || paramsObj?.order || '',
 		filter: params
 	}
 	openEitriApp('home', {
 		route: 'ProductCatalog',
 		...payload,
+		...(title ? { title } : {}),
 		params: payload
 	})
 	return true
@@ -165,6 +184,14 @@ const resolveGeneric = async (deeplink, params) => {
 	return false
 }
 
+// Path do site enviado por esquema (ex: scheme://joias/colecao/bossa): consulta o mesmo
+// índice de páginas dos links http (pageResolverUrl). Sem pageResolverUrl, ou com 404,
+// devolve false e o pipeline segue como antes.
+const resolveSitePage = (deeplink, params) => {
+	if (!deeplink) return false
+	return resolveDeeplinkFromSitePages(`/${deeplink}${params ? `?${params}` : ''}`)
+}
+
 // Landing page enviada sem o prefixo "landingpage/" (ex: scheme://especial/cliente-a):
 // último recurso antes de fechar o app — valida a existência no CMS antes de abrir,
 // mesmo padrão das URLs http; sem match no CMS, segue o pipeline (closeEitriApp)
@@ -194,6 +221,7 @@ export const resolveUriDeeplinkScheme = async deeplink => {
 		resolveWebView,
 		resolveSearch,
 		resolveLandingPage,
+		resolveSitePage,
 		resolveCmsLandingPage
 	]
 

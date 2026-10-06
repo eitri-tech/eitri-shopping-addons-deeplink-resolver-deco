@@ -4,6 +4,20 @@ import Eitri from 'eitri-bifrost'
 import { resolveDeeplinkFromRemoteConfig, landingPageExistsInCms } from './DeeplinkResolver'
 import { delay } from './UtilService'
 
+// Parâmetros opcionais de vitrine, aceitos em collection e category:
+// - title=<texto>: título da tela (sem ele a vitrine abre com o título padrão)
+// - filter.<chave>=<valor>: facet extra somado aos da ação, mesma convenção das URLs http
+// Permite reproduzir por deeplink a vitrine que um banner do CMS abre (título + facets).
+const extractCatalogExtras = params => {
+	const searchParams = new URLSearchParams(params)
+	const facets = []
+	for (const [key, value] of searchParams.entries()) {
+		if (key.startsWith('filter.') && value) facets.push({ key: key.replace('filter.', ''), value })
+	}
+	const title = searchParams.get('title') || ''
+	return { facets, ...(title ? { title } : {}) }
+}
+
 const resolveDeeplinkToProduct = async deeplink => {
 	try {
 		let product = null
@@ -35,13 +49,15 @@ const resolveCollection = async (deeplink, params) => {
 	try {
 		if (deeplink?.startsWith('collection')) {
 			const paramsObj = Object.fromEntries(new URLSearchParams(params))
+			const { facets: extraFacets, title } = extractCatalogExtras(params)
 			const payload = {
-				facets: [{ key: 'productClusterIds', value: paramsObj?.filter || paramsObj?.filters }],
+				facets: [{ key: 'productClusterIds', value: paramsObj?.filter || paramsObj?.filters }, ...extraFacets],
 				sort: paramsObj?.O || paramsObj?.order,
 			}
 			openEitriApp('home', {
 				route: 'ProductCatalog',
 				...payload,
+				...(title ? { title } : {}),
 				params: payload
 			})
 			return true
@@ -69,14 +85,16 @@ const resolveCategory = async (deeplink, params) => {
 	if (!facets) return false
 
 	const paramsObj = Object.fromEntries(new URLSearchParams(params))
+	const { facets: extraFacets, title } = extractCatalogExtras(params)
 	const payload = {
-		facets,
+		facets: [...facets, ...extraFacets],
 		sort: paramsObj?.O || paramsObj?.order || '',
 		filter: params
 	}
 	openEitriApp('home', {
 		route: 'ProductCatalog',
 		...payload,
+		...(title ? { title } : {}),
 		params: payload
 	})
 	return true

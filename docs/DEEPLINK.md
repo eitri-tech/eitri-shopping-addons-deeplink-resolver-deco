@@ -32,6 +32,19 @@ links de loja → raiz → produto (/p) → remote config (deeplinkMap) → pág
 - A remote config continua tendo prioridade e passa a servir apenas para **exceções**.
 - Se a página não existir (404), a requisição falhar ou passar de 2 s, o passo devolve `false` e o pipeline segue como antes.
 
+### Deeplinks por esquema
+
+Links `app://…` passam pelo `UriDeeplinkSchemeResolver.js`, que ainda não consulta o índice. `collection` e `category` aceitam dois parâmetros opcionais, para reproduzir a vitrine que um banner do CMS abre:
+
+- `title=<texto>`: título da tela. Sem ele a vitrine usa o título padrão.
+- `filter.<chave>=<valor>`: facet extra somado aos da ação (mesma convenção das URLs `https://`). Pode repetir.
+
+```
+app://collection?filter=5454&order=OrderByPriceASC&title=Dia%20dos%20Pais&filter.genero=masculino
+```
+
+Parâmetros desconhecidos (ex.: `utm_*`) são ignorados.
+
 ### Ativação
 
 O passo só roda se a remote config tiver `pageResolverUrl` com o marcador `{path}`. Sem essa chave o comportamento do addon não muda.

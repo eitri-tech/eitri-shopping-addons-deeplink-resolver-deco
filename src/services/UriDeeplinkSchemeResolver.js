@@ -100,6 +100,32 @@ const resolveCategory = async (deeplink, params) => {
 	return true
 }
 
+// Vitrine por facets no formato de path do Intelligent Search: catalog/<chave>/<valor>/...
+// (ex: catalog/campanha/off, catalog/category-1/joias/campanha/off). Aceita title, order e filter.*
+const resolveCatalog = async (deeplink, params) => {
+	if (!/^catalog\//i.test(deeplink || '')) return false
+
+	const segments = deeplink.replace(/^catalog\//i, '').split('/').filter(Boolean).map(decodeURIComponent)
+	if (!segments.length || segments.length % 2 !== 0) return false
+
+	const facets = []
+	for (let i = 0; i < segments.length; i += 2) facets.push({ key: segments[i], value: segments[i + 1] })
+
+	const paramsObj = Object.fromEntries(new URLSearchParams(params))
+	const { facets: extraFacets, title } = extractCatalogExtras(params)
+	const payload = {
+		facets: [...facets, ...extraFacets],
+		sort: paramsObj?.O || paramsObj?.order || ''
+	}
+	openEitriApp('home', {
+		route: 'ProductCatalog',
+		...payload,
+		...(title ? { title } : {}),
+		params: payload
+	})
+	return true
+}
+
 const resolveLandingPage = async (deeplink, params) => {
 	try {
 		const _deeplink = deeplink?.split('/')?.[0]?.toLowerCase()?.replace(/[^a-zA-ZÀ-ÿ]/g, '')
@@ -208,6 +234,7 @@ export const resolveUriDeeplinkScheme = async deeplink => {
 		resolveDeeplinkFromRemoteConfig,
 		resolveDeeplinkToProduct,
 		resolveCollection,
+		resolveCatalog,
 		resolveCategory,
 		resolveWebView,
 		resolveSearch,

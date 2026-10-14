@@ -108,9 +108,18 @@ export const resolveDeeplinkFromSitePages = async (deeplink) => {
       return true;
     }
 
-    if (entry.type === "search" && typeof entry.query === "string" && entry.query) {
-      openEitriApp("home", { deeplink, route: "Search", searchTerm: entry.query });
-      return true;
+    if (entry.type === "search") {
+      // O {path} vai sem query: o termo vem do `q` do próprio deeplink.
+      const queryString = String(deeplink).split("?")[1]?.split("#")[0] || "";
+      const searchTerm =
+        (typeof entry.query === "string" && entry.query) ||
+        new URLSearchParams(queryString).get("q") ||
+        "";
+      if (searchTerm) {
+        openEitriApp("home", { deeplink, route: "Search", searchTerm });
+        return true;
+      }
+      return false;
     }
 
     const pageFacets = Array.isArray(entry.facets)

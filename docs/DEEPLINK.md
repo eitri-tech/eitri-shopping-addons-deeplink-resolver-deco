@@ -79,7 +79,7 @@ Redirect (o app segue até 2 saltos):
 { "type": "redirect", "to": "/aliancas" }
 ```
 
-Busca (o app abre a home com `route: 'Search'`):
+Busca (o app abre a home com `route: 'Search'`; sem `query`, usa o `q` da URL do deeplink, já que o `{path}` vai sem query string):
 
 ```json
 { "type": "search", "query": "anel de prata" }

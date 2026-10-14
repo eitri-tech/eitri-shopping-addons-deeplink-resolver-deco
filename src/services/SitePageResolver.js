@@ -1,6 +1,6 @@
 import Eitri from "eitri-bifrost";
 import { App } from "eitri-shopping-vtex-shared";
-import { openEitriApp } from "./NavigationService";
+import { openBrowser, openEitriApp } from "./NavigationService";
 
 const REQUEST_TIMEOUT_MS = 5000;
 const MAX_REDIRECTS = 2;
@@ -100,6 +100,17 @@ export const resolveDeeplinkFromSitePages = async (deeplink) => {
     if (entry.type === "redirect" && typeof entry.to === "string") {
       pathname = extractPathname(entry.to);
       continue;
+    }
+
+    // Página que o site pede para abrir no navegador interno (ex.: institucional).
+    if (entry.type === "web") {
+      await openBrowser(String(deeplink), true);
+      return true;
+    }
+
+    if (entry.type === "search" && typeof entry.query === "string" && entry.query) {
+      openEitriApp("home", { deeplink, route: "Search", searchTerm: entry.query });
+      return true;
     }
 
     const pageFacets = Array.isArray(entry.facets)

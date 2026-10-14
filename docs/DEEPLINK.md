@@ -79,7 +79,19 @@ Redirect (o app segue até 2 saltos):
 { "type": "redirect", "to": "/aliancas" }
 ```
 
-Páginas sem vitrine (institucionais, landing pages) respondem 404 e seguem para os próximos passos do pipeline.
+Busca (o app abre a home com `route: 'Search'`):
+
+```json
+{ "type": "search", "query": "anel de prata" }
+```
+
+Abrir no navegador interno do app (Custom Tab / SFSafariViewController), com a URL original do deeplink:
+
+```json
+{ "type": "web" }
+```
+
+`search` e `web` são opcionais: a Lambda não os gera. Páginas sem vitrine (institucionais, landing pages) respondem 404 e seguem para os próximos passos do pipeline, a menos que o site responda `web` para elas.
 
 ## A Lambda
 

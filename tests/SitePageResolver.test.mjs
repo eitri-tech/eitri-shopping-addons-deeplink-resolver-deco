@@ -79,32 +79,14 @@ test("redirect em loop para depois de 2 saltos", async () => {
   assert.equal(calls.filter(([k]) => k === "get").length, 3);
 });
 
-test("search usa o q do deeplink (o {path} vai sem query)", async () => {
-  responses[url("s")] = { type: "search", query: "" };
-  assert.equal(await resolveDeeplinkFromSitePages("https://www.loja.com.br/s?q=anel%20prata#x"), true);
-  assert.deepEqual(opened(), [["openEitriApp", "home", { deeplink: "https://www.loja.com.br/s?q=anel%20prata#x", route: "Search", searchTerm: "anel prata" }]]);
-});
-
-test("search: query da resposta tem prioridade", async () => {
-  responses[url("s")] = { type: "search", query: "brinco" };
-  await resolveDeeplinkFromSitePages("https://www.loja.com.br/s?q=anel");
-  assert.equal(opened()[0][2].searchTerm, "brinco");
-});
-
-test("search sem termo segue a cadeia", async () => {
-  responses[url("s")] = { type: "search" };
-  assert.equal(await resolveDeeplinkFromSitePages("https://www.loja.com.br/s?filter.cor=preta"), false);
-  assert.deepEqual(opened(), []);
-});
-
 test("web abre o deeplink original no navegador interno", async () => {
   responses[url("regulamento")] = { type: "web" };
   assert.equal(await resolveDeeplinkFromSitePages("https://www.loja.com.br/regulamento?utm=x"), true);
   assert.deepEqual(opened(), [["openBrowser", "https://www.loja.com.br/regulamento?utm=x", true]]);
 });
 
-test("tipo desconhecido e 404 seguem a cadeia", async () => {
-  responses[url("novo")] = { type: "algo-futuro" };
+test("tipo desconhecido (ex.: search) e 404 seguem a cadeia", async () => {
+  responses[url("novo")] = { type: "search", query: "anel" };
   assert.equal(await resolveDeeplinkFromSitePages("https://www.loja.com.br/novo"), false);
   assert.equal(await resolveDeeplinkFromSitePages("https://www.loja.com.br/nao-existe"), false);
   assert.deepEqual(opened(), []);

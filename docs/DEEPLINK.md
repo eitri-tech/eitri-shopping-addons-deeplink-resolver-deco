@@ -79,7 +79,13 @@ Redirect (o app segue até 2 saltos):
 { "type": "redirect", "to": "/aliancas" }
 ```
 
-Páginas sem vitrine (institucionais, landing pages) respondem 404 e seguem para os próximos passos do pipeline.
+Abrir a URL original do deeplink numa WebView do app (`openWebFlow`, o mesmo do `forceWeb: "<url>"` do `deeplinkMap`). Navegador externo não serve para o domínio da loja: no Android o App Link verificado devolve o link ao app, inclusive pelo `redirect.html` do `forceWeb: true`:
+
+```json
+{ "type": "web" }
+```
+
+`web` é opcional: a Lambda não o gera. Páginas sem vitrine (institucionais, landing pages) respondem 404 e seguem para os próximos passos do pipeline, a menos que o site responda `web` para elas (o da Monte Carlo responde `web` para toda página do CMS sem vitrine).
 
 ## A Lambda
 
@@ -156,3 +162,7 @@ Resultado na Monte Carlo: 1.201 de 1.203 paths de catálogo resolvidos (1.093 id
 - **Dependência do `.decofile` público:** se o site fechar o acesso a ele, instâncias que já têm o índice em memória continuam servindo a última versão, mas instâncias novas passam a responder 502 e o app cai no pipeline antigo. A alternativa definitiva é um loader no próprio site respondendo no mesmo contrato por path, e aí basta trocar a `pageResolverUrl`.
 - **Lógica extra de loaders customizados:** o app aplica só as `selectedFacets`. Regras além delas, como o filtro de desconto do `DiscountFilteredListingPage`, não são reproduzidas.
 - **Match do `deeplinkMap`:** ele casa por substring (`deeplink.indexOf(path)`) e a primeira entrada vence. Com `/app` antes de `/app-monte-carlo-joias`, a segunda nunca é alcançada. Isso vale para as exceções que ficarem na remote config.
+
+## Testes
+
+`node --test tests/*.test.mjs` (Node >= 22.15). Cobrem o contrato do `pageResolverUrl` acima: os pacotes do Eitri viram stubs, então rodam fora do app. Rodam em todo PR (`.github/workflows/test.yml`).

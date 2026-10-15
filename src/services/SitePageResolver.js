@@ -1,6 +1,6 @@
 import Eitri from "eitri-bifrost";
 import { App } from "eitri-shopping-vtex-shared";
-import { openBrowser, openEitriApp } from "./NavigationService";
+import { openEitriApp, openRedirectLinkBrowser } from "./NavigationService";
 
 const REQUEST_TIMEOUT_MS = 5000;
 const MAX_REDIRECTS = 2;
@@ -102,9 +102,11 @@ export const resolveDeeplinkFromSitePages = async (deeplink) => {
       continue;
     }
 
-    // Página que o site pede para abrir no navegador interno (ex.: institucional).
+    // Página do site sem tela no app (institucional, LP): abre no navegador, pelo
+    // mesmo caminho do `forceWeb: true` do deeplinkMap — no Android passa pelo
+    // redirect.html para o App Link verificado não devolver o link ao app.
     if (entry.type === "web") {
-      await openBrowser(String(deeplink), true);
+      await openRedirectLinkBrowser(String(deeplink));
       return true;
     }
 

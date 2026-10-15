@@ -79,13 +79,13 @@ Redirect (o app segue até 2 saltos):
 { "type": "redirect", "to": "/aliancas" }
 ```
 
-Abrir no navegador interno do app (Custom Tab / SFSafariViewController), com a URL original do deeplink:
+Abrir a URL original do deeplink no navegador, pelo mesmo caminho do `forceWeb: true` do `deeplinkMap` (`openRedirectLinkBrowser`; no Android passa pelo `redirect.html` para o App Link não devolver o link ao app):
 
 ```json
 { "type": "web" }
 ```
 
-`web` é opcional: a Lambda não o gera. Páginas sem vitrine (institucionais, landing pages) respondem 404 e seguem para os próximos passos do pipeline, a menos que o site responda `web` para elas.
+`web` é opcional: a Lambda não o gera. Páginas sem vitrine (institucionais, landing pages) respondem 404 e seguem para os próximos passos do pipeline, a menos que o site responda `web` para elas (o da Monte Carlo responde `web` para toda página do CMS sem vitrine).
 
 ## A Lambda
 

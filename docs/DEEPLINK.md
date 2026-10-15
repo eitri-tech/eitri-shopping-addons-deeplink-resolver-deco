@@ -79,7 +79,7 @@ Redirect (o app segue até 2 saltos):
 { "type": "redirect", "to": "/aliancas" }
 ```
 
-Abrir a URL original do deeplink no navegador, pelo mesmo caminho do `forceWeb: true` do `deeplinkMap` (`openRedirectLinkBrowser`; no Android passa pelo `redirect.html` para o App Link não devolver o link ao app):
+Abrir a URL original do deeplink numa WebView do app (`openWebFlow`, o mesmo do `forceWeb: "<url>"` do `deeplinkMap`). Navegador externo não serve para o domínio da loja: no Android o App Link verificado devolve o link ao app, inclusive pelo `redirect.html` do `forceWeb: true`:
 
 ```json
 { "type": "web" }

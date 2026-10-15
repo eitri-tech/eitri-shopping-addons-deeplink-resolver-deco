@@ -21,14 +21,14 @@ globalThis.__stubs = {
   },
   App: { get configs() { return { deeplinkResolver: { pageResolverUrl } }; } },
   openEitriApp: (slug, params) => calls.push(["openEitriApp", slug, params]),
-  openRedirectLinkBrowser: async (url) => calls.push(["openRedirectLinkBrowser", url]),
+  openWebFlow: async (url) => calls.push(["openWebFlow", url]),
 };
 
 // Os pacotes do Eitri não existem fora do app: o import vira um stub.
 const STUBS = {
   "eitri-bifrost": "export default globalThis.__stubs.bifrost;",
   "eitri-shopping-vtex-shared": "export const App = globalThis.__stubs.App;",
-  "./NavigationService": "export const { openEitriApp, openRedirectLinkBrowser } = globalThis.__stubs;",
+  "./NavigationService": "export const { openEitriApp, openWebFlow } = globalThis.__stubs;",
 };
 registerHooks({
   resolve: (specifier, context, next) =>
@@ -79,10 +79,10 @@ test("redirect em loop para depois de 2 saltos", async () => {
   assert.equal(calls.filter(([k]) => k === "get").length, 3);
 });
 
-test("web abre o deeplink original no navegador, como o forceWeb do deeplinkMap", async () => {
+test("web abre o deeplink original na WebView do app (webFlow)", async () => {
   responses[url("regulamento")] = { type: "web" };
   assert.equal(await resolveDeeplinkFromSitePages("https://www.loja.com.br/regulamento?utm=x"), true);
-  assert.deepEqual(opened(), [["openRedirectLinkBrowser", "https://www.loja.com.br/regulamento?utm=x"]]);
+  assert.deepEqual(opened(), [["openWebFlow", "https://www.loja.com.br/regulamento?utm=x"]]);
 });
 
 test("tipo desconhecido (ex.: search) e 404 seguem a cadeia", async () => {

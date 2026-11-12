@@ -5,9 +5,9 @@ module.exports = {
   "eitri-luminus": "2.22.6",
   "eitri-bifrost": "6.0.0",
   "eitri-commons": "2.2.1",
-  version: "1.3.0",
+  version: "1.4.0",
   messageVersion:
-    "feat: deeplink por esquema catalog/<chave>/<valor> no formato do Intelligent Search",
+    "feat: carrinho compartilhado (type cart) abre o app de carrinho",
   id: "b0119535-e179-4459-aca0-4d49c4aa7661",
   "eitri-app-dependencies": {
     "eitri-shopping-vtex-shared": {

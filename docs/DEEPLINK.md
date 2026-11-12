@@ -81,6 +81,16 @@ Redirect (o app segue até 2 saltos):
 
 Páginas sem vitrine (institucionais, landing pages) respondem 404 e seguem para os próximos passos do pipeline.
 
+Abrir o app de carrinho com um orderForm (carrinho compartilhado do Sales App, `/api/io/_v/share/<code>`; o app de carrinho adota o `orderFormId` do `initParams`). A resposta não pode ir para cache: cada clique precisa do próprio orderForm. A Lambda não gera esse tipo:
+
+```json
+{ "type": "cart", "orderFormId": "e00c1ee2d94a4bad9ef19d03f1444b47" }
+```
+
+## Testes
+
+`node --test tests/*.test.mjs` (Node >= 22.15). Cobrem o contrato do `pageResolverUrl` acima: os pacotes do Eitri viram stubs, então rodam fora do app. Rodam em todo PR (`.github/workflows/test.yml`).
+
 ## A Lambda
 
 `page-index/lambda/index.mjs` é um arquivo único, sem dependências, que exporta `handler` no formato de evento da Function URL (payload 2.0). Ela não faz parte do Eitri-App: é publicada uma vez e atende todas as lojas liberadas.

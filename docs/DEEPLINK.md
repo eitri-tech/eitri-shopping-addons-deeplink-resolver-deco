@@ -89,7 +89,7 @@ Abrir o app de carrinho com um orderForm (carrinho compartilhado do Sales App, `
 
 ## Testes
 
-`node --test tests/*.test.mjs` (Node >= 22.15). Cobrem o contrato do `pageResolverUrl` acima: os pacotes do Eitri viram stubs, então rodam fora do app. Rodam em todo PR (`.github/workflows/test.yml`).
+`node --test tests/*.test.mjs` (Node >= 22.15). Cobrem o contrato do `pageResolverUrl` acima: os pacotes do Eitri viram stubs, então rodam fora do app.
 
 ## A Lambda
 

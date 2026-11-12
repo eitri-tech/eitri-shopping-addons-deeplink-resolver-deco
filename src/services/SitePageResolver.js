@@ -102,6 +102,13 @@ export const resolveDeeplinkFromSitePages = async (deeplink) => {
       continue;
     }
 
+    // Carrinho compartilhado (Sales App, `/api/io/_v/share/<code>`): o site
+    // cria o orderForm clone e o app de carrinho o adota pelo `orderFormId`.
+    if (entry.type === "cart" && typeof entry.orderFormId === "string" && entry.orderFormId) {
+      await openEitriApp("cart", { orderFormId: entry.orderFormId });
+      return true;
+    }
+
     const pageFacets = Array.isArray(entry.facets)
       ? entry.facets.filter((f) => f?.key && f?.value)
       : [];

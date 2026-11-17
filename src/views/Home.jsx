@@ -4,6 +4,7 @@ import { deeplinkActionsExecutor } from '../services/NotificationDeepLinkService
 import { resolveDeeplinkPath } from '../services/DeeplinkResolver'
 import { resolveUriDeeplinkScheme } from '../services/UriDeeplinkSchemeResolver'
 import { closeEitriApp } from '@/services/NavigationService'
+import { extractUtmParams, sanitizeUtmParams } from '../services/UtmService'
 
 export default function Home(props) {
 	useEffect(() => {
@@ -41,7 +42,7 @@ export default function Home(props) {
 
 	async function resolveDeeplinkUtmParams(startParams) {
 		const utmParams = Object.fromEntries(Object.entries(startParams).filter(([key]) => key.includes('utm')))
-		await saveUtmParams(utmParams)
+		await saveUtmParams(sanitizeUtmParams(utmParams))
 	}
 
 	function processParams(input) {
@@ -112,22 +113,7 @@ export default function Home(props) {
 
 	const resolveUtmParams = async queryParams => {
 		if (!queryParams) return
-		const paramsArray = queryParams.split('&')
-		const paramsObject = {}
-		paramsArray?.forEach(param => {
-			const [key, value] = param.split('=')
-			if (key.startsWith('utm')) {
-				paramsObject[key] = value
-			}
-		})
-
-		const awinParam = paramsArray?.find(k => k.startsWith("awc="))
-		if (awinParam) {
-			const awc = awinParam.split('=')[1]
-			paramsObject.utm_campaign = awc
-		}
-
-		await saveUtmParams(paramsObject)
+		await saveUtmParams(extractUtmParams(queryParams))
 	}
 
 	const saveUtmParams = async params => {

@@ -43,3 +43,7 @@ test("params do push (objeto) passam pela mesma limpeza", () => {
     { utm_source: "push_app", utm_campaign: "20261115_pushaltabf", utmi_campaign: "x.y" },
   );
 });
+
+test("fragmento (#) do link é ignorado, como o navegador faz no site", () => {
+  assert.deepEqual(extractUtmParams("utm_campaign=a.b#frag.c"), { utm_campaign: "ab" });
+});

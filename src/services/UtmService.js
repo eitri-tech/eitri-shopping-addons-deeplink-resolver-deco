@@ -19,7 +19,7 @@ export const sanitizeUtmParams = params => {
 // navegador faz no site. O awc da Awin vira utm_campaign (formato esperado pelo
 // checkout em awinService.js).
 export const extractUtmParams = queryString => {
-	const params = new URLSearchParams(queryString || '')
+	const params = new URLSearchParams((queryString || '').split('#')[0])
 	const utm = {}
 	for (const [key, value] of params) {
 		if (key.startsWith('utm')) utm[key] = value

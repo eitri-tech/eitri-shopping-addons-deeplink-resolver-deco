@@ -28,3 +28,57 @@ export const extractUtmParams = queryString => {
 	if (awc) utm.utm_campaign = awc
 	return sanitizeUtmParams(utm)
 }
+
+// ---------------------------------------------------------------------------
+// Origem (referrer) → UTMi Part, com a mesma regra do site
+// (deco-sites/montecarlo-tanstack, src/sdk/originAttribution.ts):
+// - só vale origem http(s) externa; montecarlo.com.br e subdomínios são internos;
+// - entrada por campanha (utm_source, gclid ou gbraid) descarta a origem
+//   guardada e recalcula a partir do referrer dessa entrada;
+// - fora isso, a origem guardada e ainda válida é preservada (first-touch);
+// - a validade de 30 dias vem do getUtmParams do vtex-shared (saveAt).
+// Grava como utmi_part: o vtex-shared guarda como utm_ipart e manda utmIpart no
+// marketingData; a VTEX não diferencia maiúsculas e o último campo vence, então
+// vira utmiPart no pedido (testado na API de checkout).
+const CAMPAIGN_ENTRY_KEYS = ['utm_source', 'gclid', 'gbraid']
+
+export const isExternalOrigin = url => {
+	if (!url) return false
+	try {
+		const { protocol, hostname } = new URL(url)
+		const isInternal = hostname === 'montecarlo.com.br' || hostname.endsWith('.montecarlo.com.br')
+		return (protocol === 'http:' || protocol === 'https:') && !isInternal
+	} catch (_e) {
+		return false
+	}
+}
+
+// O Android entrega o referrer de app como android-app://<pacote>/<esquema>/<host>
+// (ex.: app do Google); vira a URL web equivalente.
+export const normalizeReferrer = value => {
+	const raw = typeof value === 'string' ? value : value?.referrer ?? value?.url
+	if (!raw) return null
+	const appReferrer = /^android-app:\/\/[^/]+\/(https?)\/(.+)$/.exec(raw)
+	const url = appReferrer ? `${appReferrer[1]}://${appReferrer[2]}` : raw
+	try {
+		return new URL(url).href
+	} catch (_e) {
+		return url
+	}
+}
+
+// Devolve o que salvar no storage de UTMs, ou null quando nada muda.
+export const nextUtmParams = ({ queryString, referrer, stored = {} }) => {
+	const utm = extractUtmParams(queryString)
+	const params = new URLSearchParams((queryString || '').split('#')[0])
+	const isCampaignEntry = CAMPAIGN_ENTRY_KEYS.some(key => params.get(key))
+	const storedPart = stored.utm_ipart ?? null
+	const origin = normalizeReferrer(referrer)
+
+	const utmiPart =
+		!isCampaignEntry && isExternalOrigin(storedPart) ? storedPart : isExternalOrigin(origin) ? origin : null
+
+	if (Object.keys(utm).length) return { ...utm, utmi_part: utmiPart }
+	if (utmiPart === storedPart) return null
+	return { ...stored, utmi_part: utmiPart }
+}

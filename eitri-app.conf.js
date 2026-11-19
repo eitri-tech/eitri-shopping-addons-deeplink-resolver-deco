@@ -5,9 +5,9 @@ module.exports = {
   "eitri-luminus": "2.22.6",
   "eitri-bifrost": "6.0.0",
   "eitri-commons": "2.2.1",
-  version: "1.4.1",
+  version: "1.5.0",
   messageVersion:
-    "fix: UTMs do link decodificadas e limpas igual ao site",
+    "feat: grava o referrer do deeplink no UTMi Part igual ao site",
   id: "b0119535-e179-4459-aca0-4d49c4aa7661",
   "eitri-app-dependencies": {
     "eitri-shopping-vtex-shared": {

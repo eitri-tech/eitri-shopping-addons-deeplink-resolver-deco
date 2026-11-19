@@ -4,7 +4,7 @@ import { deeplinkActionsExecutor } from '../services/NotificationDeepLinkService
 import { resolveDeeplinkPath } from '../services/DeeplinkResolver'
 import { resolveUriDeeplinkScheme } from '../services/UriDeeplinkSchemeResolver'
 import { closeEitriApp } from '@/services/NavigationService'
-import { extractUtmParams, sanitizeUtmParams } from '../services/UtmService'
+import { nextUtmParams, sanitizeUtmParams } from '../services/UtmService'
 
 export default function Home(props) {
 	useEffect(() => {
@@ -112,8 +112,27 @@ export default function Home(props) {
 	}
 
 	const resolveUtmParams = async queryParams => {
-		if (!queryParams) return
-		await saveUtmParams(extractUtmParams(queryParams))
+		const [referrer, stored] = await Promise.all([getDeeplinkReferrer(), Vtex.customer.getUtmParams()])
+		const params = nextUtmParams({ queryString: queryParams, referrer, stored: stored || {} })
+		if (params) await saveUtmParams(params)
+	}
+
+	// Referrer da abertura do link, exposto pelo app nativo a partir da 1.2.1.
+	// Em versões antigas a função não existe e segue sem origem. O timeout evita
+	// prender o usuário no "Carregando..." se o nativo não responder.
+	const getDeeplinkReferrer = async () => {
+		try {
+			if (!Eitri.canIUse(28)) return null
+			const read = async () => {
+				const getReferrer = (await Eitri.modules())?.appState?.getDeeplinkReferrer
+				return typeof getReferrer === 'function' ? getReferrer() : null
+			}
+			const timeout = new Promise(resolve => setTimeout(() => resolve(null), 1500))
+			return await Promise.race([read(), timeout])
+		} catch (e) {
+			console.error('Erro ao obter o referrer do deeplink', e)
+			return null
+		}
 	}
 
 	const saveUtmParams = async params => {

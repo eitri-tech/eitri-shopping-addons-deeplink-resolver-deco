@@ -118,15 +118,17 @@ export default function Home(props) {
 	}
 
 	// Referrer da abertura do link, exposto pelo app nativo a partir da 1.2.1.
-	// Em versões antigas a função não existe e segue sem origem.
+	// Em versões antigas a função não existe e segue sem origem. O timeout evita
+	// prender o usuário no "Carregando..." se o nativo não responder.
 	const getDeeplinkReferrer = async () => {
 		try {
-			const modules = await Eitri.modules()
-			const getReferrer = modules?.appState?.getDeeplinkReferrer
-			if (typeof getReferrer !== 'function') return null
-			const referrer = await getReferrer()
-			console.log('[deeplink-resolver] referrer', JSON.stringify(referrer))
-			return referrer
+			if (!Eitri.canIUse(28)) return null
+			const read = async () => {
+				const getReferrer = (await Eitri.modules())?.appState?.getDeeplinkReferrer
+				return typeof getReferrer === 'function' ? getReferrer() : null
+			}
+			const timeout = new Promise(resolve => setTimeout(() => resolve(null), 1500))
+			return await Promise.race([read(), timeout])
 		} catch (e) {
 			console.error('Erro ao obter o referrer do deeplink', e)
 			return null

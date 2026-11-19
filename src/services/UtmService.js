@@ -78,7 +78,14 @@ export const nextUtmParams = ({ queryString, referrer, stored = {} }) => {
 	const utmiPart =
 		!isCampaignEntry && isExternalOrigin(storedPart) ? storedPart : isExternalOrigin(origin) ? origin : null
 
-	if (Object.keys(utm).length) return { ...utm, utmi_part: utmiPart }
+	// utmi_part só entra quando há origem ou é preciso limpar uma guardada: a
+	// chave sobra no marketingData e, enquanto existir, faz o vtex-shared
+	// reenviar o attachment a cada carga do carrinho.
+	const part = utmiPart || storedPart ? { utmi_part: utmiPart } : {}
+
+	if (Object.keys(utm).length) return { ...utm, ...part }
 	if (utmiPart === storedPart) return null
-	return { ...stored, utmi_part: utmiPart }
+	// Sem UTM no link, grava só a origem: regravar as UTMs guardadas renovaria o
+	// saveAt e estenderia a campanha antiga por mais 30 dias (crmback ⟵ google).
+	return part
 }

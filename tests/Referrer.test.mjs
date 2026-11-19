@@ -32,13 +32,21 @@ test("entrada por campanha descarta a origem guardada e usa o referrer da entrad
   assert.deepEqual(nextUtmParams({ queryString: "utm_source=google&utm_medium=cpc", referrer: null, stored }), {
     utm_source: "google", utm_medium: "cpc", utmi_part: null,
   });
-  assert.deepEqual(nextUtmParams({ queryString: "gclid=abc", referrer: google, stored }), {
-    utm_source: "crmback", utm_ipart: "https://www.bing.com/", utmi_part: google,
-  });
+  assert.deepEqual(nextUtmParams({ queryString: "gclid=abc", referrer: google, stored }), { utmi_part: google });
 });
 
 test("link com UTM e sem referrer mantém o comportamento de antes", () => {
   assert.deepEqual(nextUtmParams({ queryString: "utm_source=push&utm_campaign=x", referrer: null }), {
-    utm_source: "push", utm_campaign: "x", utmi_part: null,
+    utm_source: "push", utm_campaign: "x",
   });
+});
+
+test("orgânico com campanha antiga guardada grava só a origem (não renova a campanha)", () => {
+  const stored = { utm_source: "crmback", utm_medium: "email" };
+  assert.deepEqual(nextUtmParams({ queryString: undefined, referrer: google, stored }), { utmi_part: google });
+});
+
+test("utmi_part nulo só é gravado para limpar uma origem guardada", () => {
+  assert.equal("utmi_part" in nextUtmParams({ queryString: "utm_source=google", referrer: null }), false);
+  assert.equal(nextUtmParams({ queryString: "utm_source=google", referrer: null, stored: { utm_ipart: google } }).utmi_part, null);
 });
